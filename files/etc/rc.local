@@ -2,38 +2,48 @@
 #
 # rc.local
 #
-# This script is executed at the end of each multiuser runlevel.
-# Make sure that the script will "exit 0" on success or any other
-# value on error.
-#
-# In order to enable or disable this script just change the execution
-# bits.
-#
-# RPi Network Conf Bootstrapper
- 
+
+# EduMake RPi Network Conf Bootstrapper
+# Will scan for the network names (ssids= () below) and attach to one those if it can
+# Will not be able to attach until those SSIDs are set up using wpa_cli (remember to save config)
+# If can't attach to WiFi it will generate its own AP using the SSID etc in /etc/hostapd/hostapd.conf
+#  and the IP addressing etc in createNetwork() below
+# To set up a way physically force own AP (so you can force that behaviour even when at home base):-
+#	Wire GPIO 14 and 15 together 
+#	use raspi-config -> Serial to Disable shell and kernel messages on the serial connection.
+# the code will check if the GPIO 14 and 15 are linked together (with a jumper / wire) and skip the searching if they are
+
+ssids=( 'SSID1' 'WiFiNetwork2' )
 
 createNetwork(){
-    echo "Creating network"
-    #stop the vanilla dnsmasq that does nowt
+    echo "Creating network using Own AP"
+    #Stop the vanilla dnsmasq that does nowt
     service dnsmasq stop
-    #take the wlan0 down
+    #Turn WiFi dongle wlan0 off
     ifconfig wlan0 down
 
+	#Turn WiFi dongle wlan0 back on a Fixed IP
     ifconfig wlan0 10.5.5.1 netmask 255.255.255.0 up
+    
+    #Turn on the Soft Access Point
     hostapd -B /etc/hostapd/hostapd.conf
+    
+    #Turn on DHCP and DNS redirecting : so all DNS based (web) traffic comes to the RPi
     sudo dnsmasq --interface=wlan0 --dhcp-range=10.5.5.100,10.5.5.150,255.255.255.0,12h --address=/#/10.5.5.1
     echo "Network created"
 }
 
-echo "================================="
-echo "RPi Network Conf Bootstrapper 0.1"
-echo "================================="
-echo "Scanning for known WiFi networks"
+echo "========================================="
+echo "EduMake RPi Network Conf Bootstrapper 0.1"
+echo "========================================="
 
-#List of SSIDs to try before creating own  network
-ssids=( 'SSID1' 'WiFiNetwork2' )
-#Use this one to make it default to produceing its own network
-#ssids=( )
+if [ /etc/serialtest.py ]; then
+  echo "Jumper found - forcing Own AP"
+  ssids=( )
+else
+  echo "Scanning for known WiFi networks"
+fi
+
 connected=false
 for ssid in "${ssids[@]}"
 do
@@ -62,7 +72,8 @@ if ! $connected; then
     createNetwork
 fi
 
+#Launch Web Server
+#For discover-ability make sure the the server responds to /success.txt with a start page
 sudo python /path/to/server.py &
-#make sure the the server responds to /success.txt with a start page
 
 exit 0
