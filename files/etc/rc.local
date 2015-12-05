@@ -13,7 +13,7 @@
 #	use raspi-config -> Serial to Disable shell and kernel messages on the serial connection.
 # the code will check if the GPIO 14 and 15 are linked together (with a jumper / wire) and skip the searching if they are
 
-ssids=( 'SSID1' 'WiFiNetwork2' )
+ssids=( 'FxOSstretch' 'TNCAP9B4CB1' )
 
 createNetwork(){
     echo "Creating network using Own AP"
@@ -36,8 +36,8 @@ createNetwork(){
 echo "========================================="
 echo "EduMake RPi Network Conf Bootstrapper 0.1"
 echo "========================================="
-
-if [ /etc/serialtest.py ]; then
+ 
+if /etc/serialtest.py ; then
   echo "Jumper found - forcing Own AP"
   ssids=( )
 else
@@ -74,6 +74,7 @@ fi
 
 #Launch Web Server
 #For discover-ability make sure the the server responds to /success.txt with a start page
-sudo python /path/to/server.py &
+sudo python /home/pi/Pimoroni/unicornhat/unicornpaint/paint.py  &
+#sudo python /home/pi/Pimoroni/unicornhat/demo.py  &
 
 exit 0
