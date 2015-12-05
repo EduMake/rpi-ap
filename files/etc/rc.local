@@ -13,7 +13,7 @@
 #	use raspi-config -> Serial to Disable shell and kernel messages on the serial connection.
 # the code will check if the GPIO 14 and 15 are linked together (with a jumper / wire) and skip the searching if they are
 
-ssids=( 'FxOSstretch' 'TNCAP9B4CB1' )
+ssids=( 'WiFi1' 'SSID2' )
 
 createNetwork(){
     echo "Creating network using Own AP"
@@ -74,7 +74,7 @@ fi
 
 #Launch Web Server
 #For discover-ability make sure the the server responds to /success.txt with a start page
-sudo python /home/pi/Pimoroni/unicornhat/unicornpaint/paint.py  &
-#sudo python /home/pi/Pimoroni/unicornhat/demo.py  &
+
+#sudo /path/to/server  &
 
 exit 0
